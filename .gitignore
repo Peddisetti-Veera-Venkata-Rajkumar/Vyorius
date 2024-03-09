@@ -1,32 +1,28 @@
-# Prerequisites
-*.d
+#include <ArduinoBLE.h>
+// Include sensor libraries and initialize sensors here
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+BLEService sensorService("sensor-service-uuid"); // Create a BLE service
+BLECharacteristic sensorDataCharacteristic("sensor-data-uuid", BLERead | BLENotify, 512);
 
-# Precompiled Headers
-*.gch
-*.pch
+void setup() {
+  Serial.begin(9600);
+  // Initialize sensors and BLE here
+  BLE.begin();
+  sensorService.addCharacteristic(sensorDataCharacteristic);
+  BLE.addService(sensorService);
+  BLE.advertise();
+}
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+void loop() {
+  // Read sensor data
+  float temperature = readTemperature(); // Replace with actual function
+  float humidity = readHumidity(); // Replace with actual function
+  int lightLevel = readLightLevel(); // Replace with actual function
 
-# Fortran module files
-*.mod
-*.smod
+  // Format as CSV
+  String dataString = String(temperature) + "," + String(humidity) + "," + String(lightLevel);
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+  // Send data over BLE
+  sensorDataCharacteristic.writeValue(dataString);
+  delay(1000); // Send every 1 second
+}
